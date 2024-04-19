@@ -1,4 +1,4 @@
-('D:\\projects\\keystrokes_recorder\\build\\main\\PYZ-00.pyz',
+('D:\\keystrokes_recorder_github\\build\\main\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\hkclimber\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\__future__.py',
    'PYMODULE'),

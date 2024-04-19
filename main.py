@@ -101,7 +101,6 @@ def filter(event):
     # print('filtered event: ', key_str)
     return key_str  
 
-
 def unfilter(event):
     key_str = event
     if len(key_str) > 1:
@@ -112,7 +111,7 @@ def retreive_data():
     if os.path.exists("keystrokes_recorder_data/settings.txt"):
         with open('keystrokes_recorder_data/settings.txt', 'r') as file:
             settings_content = file.read()
-            settings_dict = eval(settings_content)
+            settings_dict = eval(settings_content) if settings_content != "" else None
             return settings_dict
     else :
         return None
@@ -193,12 +192,21 @@ def saveSettings():
     
     fps = parseInt(fps_entry.get())
     delay = parseInt(delay_entry.get(), allowfloat=True)
+    if delay < 0.010:
+        delay = 0.010
     settings = {
         "shortcut_to_start" : shortcut_label.cget("text"),
         "record_shortcut" : record_shortcut_label.cget("text"),
         "fps" : fps,
         "output_folder" : output_dir_label.cget("text"),
-        "delay" : delay
+        "delay" : delay ,
+        "checkbox_keydown" : checkbox_keydown.get(),
+        "checkbox_keyup" : checkbox_keyup.get(),
+        "checkbox_scrollup" : checkbox_scrollup.get(),
+        "checkbox_scrolldown" : checkbox_scrolldown.get(),
+        "checkbox_mouseClickLeft" : checkbox_mouseClickLeft.get(),
+        "checkbox_mouseClickRight" : checkbox_mouseClickRight.get(),
+        "checkbox_mousemove" : checkbox_mousemove.get(),
     }
 
     with open('keystrokes_recorder_data/settings.txt', 'w') as file:
@@ -323,8 +331,6 @@ def log_event(event_type, event):
         second_elapsed = time() - start_time
         frames_elapsed = int(second_elapsed * fps) % fps
         timestamp = strftime('%H:%M:%S', gmtime(second_elapsed))
-        if(timestamp == "00:00:00"):
-            return
         timestamp_with_frame = f"{timestamp}:{frames_elapsed}"
         log_entry = f"{timestamp_with_frame} - {event_type}: {event}\n"
         with open(os.path.join(path, output_file_name), 'a') as file:
@@ -341,17 +347,16 @@ def refresh():
 
 simulating_keys = False
 def onclick(event):
-    # print('unfiltered event', event)
     key_str = filter(event)
-    # print('filtered event', key_str)
-    if simulating_keys == True:
+    if simulating_keys:
         return
     refresh()
     global start_time, output_file, keyHistory
     addKey(label, button, key_str)
-    if keylog:
-        log_event("keydown", key_str)
     data = retreive_data()
+    update_checkboxes(data)
+    if keylog and checkbox_keydown.get() == 1:
+        log_event("keydown", key_str)
     if not data:
         return
     shortcut_to_start = data['shortcut_to_start']
@@ -363,7 +368,7 @@ def onclick(event):
 def onrelease(event):
     global keyHistory, releaseHistory
     key_str = filter(event)
-    if simulating_keys == True:
+    if simulating_keys:
         data = retreive_data()
         shortcut_to_start = data['shortcut_to_start'].split("+")
         match = False
@@ -378,8 +383,9 @@ def onrelease(event):
         return
     
     removeKey(label, button, key_str)
-
-    if keylog:
+    data = retreive_data()
+    update_checkboxes(data)
+    if keylog and checkbox_keyup.get() == 1:
         log_event("keyup", key_str)
 
 last_log_time = 0
@@ -391,8 +397,8 @@ def onmove(x, y):
     data = retreive_data()
     if not data:
         return
+    
     fps = data['fps']
-
     time_interval = 1/fps
     current_time = time()
     timediff = current_time - last_log_time
@@ -400,18 +406,31 @@ def onmove(x, y):
     if timediff < time_interval:
         return
 
-    log_event("mousemove", f"x:{x}, y:{y}")
-    last_log_time = current_time
-    pass
+    update_checkboxes(data)
+    if checkbox_mousemove.get() == 1:
+        log_event("mousemove", f"x:{x}, y:{y}")
+        last_log_time = current_time    
 
 def onscroll(x, y, dx, dy):
-    if dy == 1:
+    if not keylog:
+        return
+    data = retreive_data()
+    update_checkboxes(data)
+    if dy == 1 and checkbox_scrollup.get() == 1:
         log_event("mouseScrollUp", dy)
-    if dy == -1:
+    if dy == -1 and checkbox_scrolldown.get() == 1:
         log_event("mouseScrollDown", dy)
 
 def onmouseclick(x, y, button, pressed):
-    log_event("mouseClick", f"{str(button).removeprefix("Button.")}, {pressed}")
+    if not keylog:
+        return
+    data = retreive_data()
+    update_checkboxes(data)
+    button = str(button).removeprefix("Button.")
+    if checkbox_mouseClickLeft.get() == 1 and button == "left":
+        log_event("mouseClick", f"{button}, {pressed}")
+    if checkbox_mouseClickRight.get() == 1 and button == "right":
+        log_event("mouseClick", f"{button}, {pressed}")
 
 def eventListeners():
     # Register keydown and keyup callbacks
@@ -460,14 +479,12 @@ def start_delayed():
     simulating_keys = False
     file_name = getFileName()
     start_logging(file_name)
-    playStop_button.config(image=stopicon)
 
 def stop_delayed():
     global simulating_keys
     simulating_keys = False
     stop_logging()
-    playStop_button.config(image=playicon)
-
+    
 recording = False
 def start_record():
     global keylog, start_time, recording, simulating_keys
@@ -479,7 +496,7 @@ def start_record():
     record = settings_data['record_shortcut']
     fps = settings_data['fps']
     delay = settings_data['delay']
-    if output == "None" or record == "None" or fps == "" or delay == "":
+    if output == "None" or record == "None" or fps == "":
         setting_prompt()
         return
     record = record.split("+")
@@ -489,6 +506,7 @@ def start_record():
     simulating_keys = True
     simulate_keys(record)
     recording = True
+    playStop_button.config(image=stopicon)
     wait_for_keys_to_be_pressed = Timer(delay, start_delayed)
     wait_for_keys_to_be_pressed.start()
     
@@ -507,6 +525,7 @@ def stop_record():
     simulating_keys = True
     simulate_keys(record)
     recording = False
+    playStop_button.config(image=playicon)
     wait_for_keys_to_be_pressed = Timer(1, stop_delayed)
     wait_for_keys_to_be_pressed.start()
 
@@ -533,12 +552,30 @@ playStop_button = Button(root, command=toggleRecord, image=playicon, width=450/2
 playStop_button.grid(column=0, row=0)
 
 #SETTINGS
+checkbox_keydown = IntVar(value=True)
+checkbox_keyup = IntVar(value=True)
+checkbox_scrollup = IntVar(value=True)
+checkbox_scrolldown = IntVar(value=True)
+checkbox_mouseClickLeft = IntVar(value=True)
+checkbox_mouseClickRight = IntVar(value=True)
+checkbox_mousemove = IntVar(value=True)
+
+def update_checkboxes(settings_data):
+    if not settings_data:
+        return
+    checkbox_keydown.set(settings_data['checkbox_keydown'])
+    checkbox_keyup.set(settings_data['checkbox_keyup'])
+    checkbox_scrollup.set(settings_data['checkbox_scrollup'])
+    checkbox_scrolldown.set(settings_data['checkbox_scrolldown'])
+    checkbox_mouseClickLeft.set(settings_data['checkbox_mouseClickLeft'])
+    checkbox_mouseClickRight.set(settings_data['checkbox_mouseClickRight'])
+    checkbox_mousemove.set(settings_data['checkbox_mousemove'])
 def open_settings():
     global settings_window, shortcut_label, record_shortcut_label, fps_entry, output_dir_label, delay_entry
     # root config 
     settings_window = Toplevel()
     settings_window.title("Settings")
-    settings_window.geometry("1050x275")
+    settings_window.geometry("1050x425")
     settings_window.config(bg='#3F403F')
 
     #widgets
@@ -573,8 +610,25 @@ def open_settings():
     delay_entry = Entry(settings_window, width=5)
     delay_entry.grid(column=1, row=5,pady=10)
     delay_entry.bind("<Return>", saveSettingsAndUnfocus)
+    delay_entry.insert(0, 0)
+
+    checkbox1 = Checkbutton(settings_window, text="Log keydown", variable=checkbox_keydown, command=saveSettings)
+    checkbox2 = Checkbutton(settings_window, text="Log keyup", variable=checkbox_keyup, command=saveSettings)
+    checkbox3 = Checkbutton(settings_window, text="Log Mouse scroll up", variable=checkbox_scrollup, command=saveSettings)
+    checkbox4 = Checkbutton(settings_window, text="Log Mouse scroll down", variable=checkbox_scrolldown, command=saveSettings)
+    checkbox5 = Checkbutton(settings_window, text="Log Mouse left click", variable=checkbox_mouseClickLeft, command=saveSettings)
+    checkbox6 = Checkbutton(settings_window, text="Log Mouse right click", variable=checkbox_mouseClickRight, command=saveSettings)
+    checkbox7 = Checkbutton(settings_window, text="Log Mouse movement", variable=checkbox_mousemove, command=saveSettings)
+    checkbox1.grid(row=6, column=0, pady=5)
+    checkbox2.grid(row=6, column=1, pady=5)
+    checkbox3.grid(row=7, column=0, pady=5)
+    checkbox4.grid(row=7, column=1, pady=5)
+    checkbox5.grid(row=8, column=0, pady=5)
+    checkbox6.grid(row=8, column=1, pady=5)
+    checkbox7.grid(row=9, column=0, pady=5)
 
     settings_data = retreive_data()
+    update_checkboxes(settings_data)
     if settings_data:
         shortcut_label.config(text=settings_data['shortcut_to_start'])
         record_shortcut_label.config(text=settings_data['record_shortcut'])
@@ -616,7 +670,10 @@ def close_prompt():
     text3.pack(pady=5, side="left", padx=0)
 
 def on_closing():
-    close_prompt()
+    if recording :
+        close_prompt()
+    else :
+        root.destroy()
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 

@@ -12,20 +12,20 @@ Download the latest keystrokeSync_portable.zip release of KeystrokeSync from the
 ### Step 2: Extract files
 Extract the downloaded portable.zip file to a folder using softwares like [WinRAR](https://www.win-rar.com/start.html?&L=0) or [7zip](https://7-zip.org/)
 
-![alt text](image.png)
+![alt text](readmeImg/image.png)
 
 ### Step 3: Configure Settings
 Open `keystrokes_recorder.exe` by double-clicking on it. <br>
 In some cases, the program may require administrator permissions to read and write keylog files without getting flagged by antivirus software. If KeystrokeSync doesn't work as expected, try running it as administrator.
 
 
-![alt text](image-2.png)
+![alt text](readmeImg/image-2.png)
 
 Now you can configure the settings according to your needs. 
 
-![alt text](image-4.png)
+![alt text](readmeImg/image-4.png)
 
-![alt text](image-5.png)
+![alt text](readmeImg/image-5.png)
 
 ### Here is what each setting does:
 
