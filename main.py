@@ -634,6 +634,7 @@ def open_settings():
         record_shortcut_label.config(text=settings_data['record_shortcut'])
         fps_entry.insert(0, settings_data['fps'])
         output_dir_label.config(text=settings_data['output_folder'])
+        delay_entry.delete(0, 'end')
         delay_entry.insert(0, settings_data['delay'])
 
 settings_button = Button(root, command=open_settings, image=settingsicon, width=450/2, height=250, cursor='hand2')
