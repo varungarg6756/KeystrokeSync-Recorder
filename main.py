@@ -610,7 +610,7 @@ def open_settings():
     delay_entry = Entry(settings_window, width=5)
     delay_entry.grid(column=1, row=5,pady=10)
     delay_entry.bind("<Return>", saveSettingsAndUnfocus)
-    delay_entry.insert(0, 0)
+    delay_entry.insert(0, 0.010) 
 
     checkbox1 = Checkbutton(settings_window, text="Log keydown", variable=checkbox_keydown, command=saveSettings)
     checkbox2 = Checkbutton(settings_window, text="Log keyup", variable=checkbox_keyup, command=saveSettings)
