@@ -44,6 +44,10 @@ Note : The `keystrokes_recorder.exe` must be running in the background for this 
 
 - **Output Folder:** Choose the directory where KeystrokeSync will save the recorded keystroke data files (txt files).
 
+- **Customize Keylog Types:** <br>- **Enable/Disable Different Types of Logs:** You can now tailor the keystroke logging behavior to suit your needs. Choose which types of events to log, including keydown, keyup, mouse scroll up, mouse scroll down, mouse click left, mouse click right, and mouse movement. This feature provides increased flexibility in capturing only the data relevant to your analysis.
+
+![alt text](readmeImg/image-0.png)
+
 ### I am stupid
 
 - If you find the user interface trash or glitchy, please forgive me. I'm not proficient in UI design, and this is just a simple Python program.
