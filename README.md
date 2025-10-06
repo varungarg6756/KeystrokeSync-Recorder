@@ -1,5 +1,5 @@
 # KeystrokeSync Recorder
- KeystrokeSync is a straightforward Python application that aligns keystroke timestamps with video recordings, ensuring accurate synchronization for data analysis. It simplifies the process of correlating user actions captured through keystrokes with corresponding moments in video footage. Whether you're conducting basic data analysis or exploring machine learning applications, KeystrokeSync provides a simple solution to enhance the accuracy of your insights. <br>
+KeystrokeSync is a straightforward Python application that records mouse/keyboard keystrokes as well as performing a keyboard shortcut for recording video footage with a external software (such as OBS, nvidia share, etc.). This can be used for tasks such as machine learning or data analysis.
 
  <span style="color: red;">Note : This software DOES NOT record video itself, it just records the keystrokes and uses keybinds to start recording from a different software like OBS or nvidia share and sync those up with the starting time of the video.</span>
 
