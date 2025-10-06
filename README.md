@@ -48,15 +48,12 @@ Note : The `keystrokes_recorder.exe` must be running in the background for this 
 
 ![alt text](readmeImg/image-0.png)
 
-### I am stupid
+### Problems 
+- user interface may or may not be glitchy, please forgive me. While I've done my best to fix any bugs I've come across, there might still be some lurking. In that case, feel free to blame me. 
 
-- If you find the user interface trash or glitchy, please forgive me. I'm not proficient in UI design, and this is just a simple Python program.
-
-- If you encounter any glitches while using this application, once again, it's on me. While I've done my best to fix any bugs I've come across, there might still be some lurking. In that case, feel free to blame me. 
-
-- Neither am i good programmer not good ui designer so again :) 
-
-    #### peace
+- On almost every recording software, there is a variable delay between pressing the keybind and the recording actually starting while this program starts recording keystrokes immediately. So if you use this, the timestamps are going to be behind the actual recording by about 50-500ms depending on your system. 
+Unless there is a proper api of the recording software you are using there is no way to eliminate this desync.
+Maybe I will Implementing a proper video recorder inside the program in future.
 
 
 
